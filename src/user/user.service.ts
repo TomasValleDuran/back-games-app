@@ -14,7 +14,6 @@ export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    // Check if email already exists
     const emailExists = await this.userRepository.emailExists(
       createUserDto.email,
     );
@@ -22,7 +21,6 @@ export class UserService {
       throw new ConflictException('Email already exists');
     }
 
-    // Check if username already exists
     const usernameExists = await this.userRepository.usernameExists(
       createUserDto.username,
     );
@@ -30,7 +28,6 @@ export class UserService {
       throw new ConflictException('Username already exists');
     }
 
-    // Check if Firebase UID already exists
     const firebaseUserExists = await this.userRepository.findByFirebaseUid(
       createUserDto.firebaseUid,
     );
@@ -80,13 +77,11 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    // Check if user exists
     const userExists = await this.userRepository.exists(id);
     if (!userExists) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    // If updating email, check if it's already taken by another user
     if (updateUserDto.email) {
       const existingUser = await this.userRepository.findByEmail(
         updateUserDto.email,
@@ -96,7 +91,6 @@ export class UserService {
       }
     }
 
-    // If updating username, check if it's already taken by another user
     if (updateUserDto.username) {
       const existingUser = await this.userRepository.findByUsername(
         updateUserDto.username,
