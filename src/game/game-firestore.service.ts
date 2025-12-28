@@ -70,7 +70,7 @@ export class GameFirestoreService {
   }
 
   async getGame(gameId: string): Promise<Game | null> {
-    if (!gameId || typeof gameId !== 'string' || gameId.trim().length === 0) {
+    if (!gameId || gameId.trim().length === 0) {
       return null;
     }
 

@@ -10,16 +10,16 @@ import {
 } from '@nestjs/common';
 import { GameFirestoreService } from './game-firestore.service';
 import { GameLogicService } from './game-logic.service';
-import { LobbyFirestoreService } from '../lobby/lobby-firestore.service';
+import { LobbyFirestoreService } from '@lobby/lobby-firestore.service';
 import { MakeMoveDto } from './dto/make-move.dto';
-import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
+import { FirebaseAuthGuard } from '@firebase/firebase-auth.guard';
 import {
   CurrentUser,
   AuthenticatedUser,
-} from '../firebase/current-user.decorator';
-import { getGameLobbyConfig } from '../lobby/interfaces/game-config.interface';
+} from '@firebase/current-user.decorator';
+import { getGameLobbyConfig } from '@lobby/interfaces/game-config.interface';
 import { GameStatus } from './enums/game.enums';
-import { LobbyStatus } from '../lobby/enums/lobby.enums';
+import { LobbyStatus } from '@lobby/enums/lobby.enums';
 
 @Controller('games')
 @UseGuards(FirebaseAuthGuard) // Protect all routes
