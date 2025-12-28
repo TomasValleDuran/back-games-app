@@ -3,10 +3,10 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
+import { User } from '@generated/prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './repositories/user.repository';
-import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -32,6 +32,10 @@ export class UserService {
     );
     if (firebaseUserExists) {
       throw new ConflictException('User with this Firebase UID already exists');
+    }
+
+    if (!createUserDto.displayName) {
+      createUserDto.displayName = createUserDto.username;
     }
 
     return this.userRepository.create(createUserDto);

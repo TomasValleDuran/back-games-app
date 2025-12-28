@@ -6,11 +6,19 @@ export interface RequestWithUser extends Request {
   user: User;
 }
 
+export type AuthenticatedUser = User;
+
 export const CurrentUser = createParamDecorator(
-  (data: keyof User | undefined, ctx: ExecutionContext) => {
+  (_data: unknown, ctx: ExecutionContext): User => {
     const request = ctx.switchToHttp().getRequest<RequestWithUser>();
     const user = request.user;
 
-    return data ? user?.[data] : user;
+    if (!user) {
+      throw new Error(
+        'User not found in request. Ensure FirebaseAuthGuard is applied.',
+      );
+    }
+
+    return user;
   },
 );

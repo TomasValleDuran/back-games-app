@@ -18,7 +18,12 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@generated/*": ["generated/*"]
+      "@generated/*": ["generated/*"],
+      "@user/*": ["src/user/*"],
+      "@firebase/*": ["src/firebase/*"],
+      "@prisma/*": ["src/prisma/*"],
+      "@lobby/*": ["src/lobby/*"],
+      "@game/*": ["src/game/*"]
     }
   }
 }
