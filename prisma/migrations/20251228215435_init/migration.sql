@@ -4,7 +4,7 @@ CREATE TABLE "User" (
     "firebaseUid" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
-    "displayName" TEXT,
+    "displayName" TEXT NOT NULL,
     "photoURL" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

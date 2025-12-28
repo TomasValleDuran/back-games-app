@@ -1,16 +1,18 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
 import { Firestore } from 'firebase-admin/firestore';
 
 @Injectable()
-export class FirebaseService implements OnModuleInit {
+export class FirebaseService {
   private firestore: Firestore;
   private readonly logger = new Logger(FirebaseService.name);
 
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService) {
+    this.initializeFirebase();
+  }
 
-  onModuleInit() {
+  private initializeFirebase() {
     try {
       const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
       const privateKey = this.configService
