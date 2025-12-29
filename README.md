@@ -164,14 +164,16 @@ providers: [
 ]
 
 // src/game/game-logic.service.ts
-constructor(
-  private readonly ticTacToeLogic: TicTacToeLogic,
-  private readonly yourGameLogic: YourGameLogic,  // Add here
-) {
-  this.gameLogics = new Map([
-    [GameType.TIC_TAC_TOE, this.ticTacToeLogic],
-    [GameType.YOUR_GAME, this.yourGameLogic],  // Add here
-  ]);
+export class GameLogicService {
+  constructor(
+    private readonly ticTacToeLogic: TicTacToeLogic,
+    private readonly yourGameLogic: YourGameLogic,  // Add here
+  ) {
+    this.gameLogics = new Map([
+      [GameType.TIC_TAC_TOE, this.ticTacToeLogic],
+      [GameType.YOUR_GAME, this.yourGameLogic],  // Add here
+    ]);
+  }
 }
 ```
 
@@ -281,7 +283,14 @@ npm run test:e2e
   gameType: GameType;
   status: 'WAITING' | 'IN_GAME' | 'FINISHED';
   maxPlayers: number;
-  players: LobbyPlayer[];
+  players: Array<{
+    userId: string;
+    username: string;
+    displayName: string;
+    photoURL: string | null;
+    isReady: boolean;
+    joinedAt: Timestamp;
+  }>;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -294,7 +303,12 @@ npm run test:e2e
   gameType: GameType;
   status: 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED';
   currentPlayerId: string;
-  players: GamePlayer[];
+  players: Array<{
+    userId: string;
+    username: string;
+    displayName: string;
+    symbol?: string;
+  }>;
   state: GameState;
   winnerId: string | null;
   startedAt: Timestamp;
