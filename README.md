@@ -233,8 +233,15 @@ All endpoints require `Authorization: Bearer <firebase-id-token>` header.
 - `GET /games/:id/moves` - Get move history
 
 ### Users
-- `GET /user` - Get current user profile
-- `PATCH /user/:id` - Update user profile
+- `POST /user` - Create a new user (public, for registration)
+- `GET /user` - Get current authenticated user profile (requires auth)
+- `GET /user/all` - Get all users (requires auth)
+- `GET /user/:id` - Get specific user by ID (requires auth)
+- `GET /user/email/:email` - Get user by email (requires auth)
+- `GET /user/firebase/:firebaseUid` - Get user by Firebase UID (requires auth)
+- `GET /user/username/:username` - Get user by username (requires auth)
+- `PATCH /user/:id` - Update user profile (requires auth, can only update own profile)
+- `DELETE /user/:id` - Delete user account (requires auth, can only delete own account)
 
 ## 🧪 Testing
 
