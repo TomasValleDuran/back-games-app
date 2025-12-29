@@ -233,7 +233,7 @@ export class GameController {
     }
 
     await this.gameFirestoreService.abandonGame(gameId);
-    
+
     // Reset lobby back to WAITING so players can play again
     await this.lobbyFirestoreService.resetLobbyAfterGame(game.lobbyId);
 

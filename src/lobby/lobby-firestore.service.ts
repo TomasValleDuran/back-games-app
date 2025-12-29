@@ -295,7 +295,10 @@ export class LobbyFirestoreService {
       const resetPlayers = lobby.players.map((player) => ({
         ...player,
         // Owner ready status depends on game configuration
-        isReady: player.userId === lobby.ownerId ? !gameConfig.ownerMustBeReady : false,
+        isReady:
+          player.userId === lobby.ownerId
+            ? !gameConfig.ownerMustBeReady
+            : false,
       }));
 
       transaction.update(lobbyRef, {

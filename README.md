@@ -128,15 +128,27 @@ export class YourGameLogic implements IGameLogic {
     // Initialize game state
   }
 
-  validateAndApplyMove(...): { newState: YourGameState; gameOver: boolean; winnerId: string | null } {
+  validateAndApplyMove(
+    currentState: GameState,
+    move: Record<string, any>,
+    playerId: string,
+    players: GamePlayer[],
+  ): { newState: YourGameState; gameOver: boolean; winnerId: string | null } {
     // Validate and apply move
   }
 
-  getNextPlayerId(...): string {
+  getNextPlayerId(currentPlayerId: string, players: GamePlayer[]): string {
     // Determine next player
   }
 
-  createGamePlayers(...): GamePlayer[] {
+  createGamePlayers(
+    lobbyPlayers: Array<{
+      userId: string;
+      username: string;
+      displayName: string;
+      photoURL: string | null;
+    }>,
+  ): GamePlayer[] {
     // Assign game-specific player properties
   }
 }
