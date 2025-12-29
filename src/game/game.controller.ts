@@ -195,11 +195,8 @@ export class GameController {
     if (result.gameOver) {
       await this.gameFirestoreService.endGame(gameId, result.winnerId);
 
-      // Update lobby status
-      await this.lobbyFirestoreService.updateLobbyStatus(
-        game.lobbyId,
-        LobbyStatus.FINISHED,
-      );
+      // Reset lobby back to WAITING so players can play again
+      await this.lobbyFirestoreService.resetLobbyAfterGame(game.lobbyId);
     }
 
     return {
@@ -236,10 +233,9 @@ export class GameController {
     }
 
     await this.gameFirestoreService.abandonGame(gameId);
-    await this.lobbyFirestoreService.updateLobbyStatus(
-      game.lobbyId,
-      LobbyStatus.FINISHED,
-    );
+    
+    // Reset lobby back to WAITING so players can play again
+    await this.lobbyFirestoreService.resetLobbyAfterGame(game.lobbyId);
 
     return {
       success: true,

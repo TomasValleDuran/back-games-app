@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FirebaseService } from '@firebase/firebase.service';
-import { Firestore, FieldValue } from 'firebase-admin/firestore';
+import { Firestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { LobbyStatus, GameType } from './enums/lobby.enums';
 import { getGameLobbyConfig } from './interfaces/game-config.interface';
 
@@ -53,6 +53,7 @@ export class LobbyFirestoreService {
     // Get game-specific configuration
     const gameConfig = getGameLobbyConfig(data.gameType);
 
+    const now = Timestamp.now();
     const lobby: Omit<Lobby, 'id'> = {
       name: data.name,
       ownerId: data.ownerId,
@@ -67,7 +68,7 @@ export class LobbyFirestoreService {
           photoURL: data.ownerPhotoURL,
           // Owner ready status depends on game configuration
           isReady: !gameConfig.ownerMustBeReady,
-          joinedAt: FieldValue.serverTimestamp(),
+          joinedAt: now,
         },
       ],
       createdAt: FieldValue.serverTimestamp(),
@@ -76,16 +77,18 @@ export class LobbyFirestoreService {
 
     await lobbyRef.set(lobby);
 
+    // Read back the document to get the server-generated timestamps
+    const createdDoc = await lobbyRef.get();
+    const createdData = createdDoc.data();
+
+    if (!createdData) {
+      throw new Error('Failed to create lobby');
+    }
+
     return {
-      ...lobby,
       id: lobbyRef.id,
-      players: lobby.players.map((p) => ({
-        ...p,
-        joinedAt: p.joinedAt as FirebaseFirestore.Timestamp,
-      })),
-      createdAt: lobby.createdAt as FirebaseFirestore.Timestamp,
-      updatedAt: lobby.updatedAt as FirebaseFirestore.Timestamp,
-    };
+      ...createdData,
+    } as Lobby;
   }
 
   async getLobby(lobbyId: string): Promise<Lobby | null> {
@@ -169,7 +172,7 @@ export class LobbyFirestoreService {
         {
           ...player,
           isReady: false,
-          joinedAt: FieldValue.serverTimestamp(),
+          joinedAt: Timestamp.now(),
         },
       ];
 
@@ -270,6 +273,36 @@ export class LobbyFirestoreService {
     await this.lobbiesCollection.doc(lobbyId).update({
       status,
       updatedAt: FieldValue.serverTimestamp(),
+    });
+  }
+
+  async resetLobbyAfterGame(lobbyId: string): Promise<void> {
+    const lobbyRef = this.lobbiesCollection.doc(lobbyId);
+
+    await this.firestore.runTransaction(async (transaction) => {
+      const lobbyDoc = await transaction.get(lobbyRef);
+
+      if (!lobbyDoc.exists) {
+        throw new NotFoundException('Lobby not found');
+      }
+
+      const lobby = { id: lobbyDoc.id, ...lobbyDoc.data() } as Lobby;
+
+      // Get game-specific configuration
+      const gameConfig = getGameLobbyConfig(lobby.gameType);
+
+      // Reset all players' ready status and set lobby back to WAITING
+      const resetPlayers = lobby.players.map((player) => ({
+        ...player,
+        // Owner ready status depends on game configuration
+        isReady: player.userId === lobby.ownerId ? !gameConfig.ownerMustBeReady : false,
+      }));
+
+      transaction.update(lobbyRef, {
+        status: LobbyStatus.WAITING,
+        players: resetPlayers,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
     });
   }
 
