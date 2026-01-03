@@ -103,6 +103,7 @@ export class GameController {
     await this.lobbyFirestoreService.updateLobbyStatus(
       lobbyId,
       LobbyStatus.IN_GAME,
+      game.id,
     );
 
     return {

@@ -25,6 +25,7 @@ export interface Lobby {
   status: LobbyStatus;
   maxPlayers: number;
   players: LobbyPlayer[];
+  gameId?: string;
   createdAt: FirebaseFirestore.Timestamp | FieldValue;
   updatedAt: FirebaseFirestore.Timestamp | FieldValue;
 }
@@ -269,11 +270,18 @@ export class LobbyFirestoreService {
     });
   }
 
-  async updateLobbyStatus(lobbyId: string, status: LobbyStatus): Promise<void> {
-    await this.lobbiesCollection.doc(lobbyId).update({
+  async updateLobbyStatus(lobbyId: string, status: LobbyStatus, gameId?: string): Promise<void> {
+    const updateData: any = {
       status,
       updatedAt: FieldValue.serverTimestamp(),
-    });
+    };
+    
+    // Add gameId if provided (when game starts)
+    if (gameId) {
+      updateData.gameId = gameId;
+    }
+    
+    await this.lobbiesCollection.doc(lobbyId).update(updateData);
   }
 
   async resetLobbyAfterGame(lobbyId: string): Promise<void> {
