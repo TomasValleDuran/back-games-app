@@ -4,6 +4,7 @@ import { IGameLogic } from './interfaces/game-logic.interface';
 import { GameState } from './interfaces/game-state.interface';
 import { GamePlayer } from './game-firestore.service';
 import { TicTacToeLogic } from './games/tic-tac-toe.logic';
+import { Connect4Logic } from './games/connect4.logic';
 
 /**
  * Service that acts as a registry and factory for game logic implementations
@@ -13,8 +14,14 @@ import { TicTacToeLogic } from './games/tic-tac-toe.logic';
 export class GameLogicService {
   private readonly gameLogics: Map<GameType, IGameLogic>;
 
-  constructor(private readonly ticTacToeLogic: TicTacToeLogic) {
-    this.gameLogics = new Map([[GameType.TIC_TAC_TOE, this.ticTacToeLogic]]);
+  constructor(
+    private readonly ticTacToeLogic: TicTacToeLogic,
+    private readonly connect4Logic: Connect4Logic,
+  ) {
+    this.gameLogics = new Map([
+      [GameType.TIC_TAC_TOE, this.ticTacToeLogic],
+      [GameType.CONNECT4, this.connect4Logic],
+    ]);
   }
 
   /**

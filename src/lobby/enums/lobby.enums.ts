@@ -6,4 +6,5 @@ export enum LobbyStatus {
 
 export enum GameType {
   TIC_TAC_TOE = 'TIC_TAC_TOE',
+  CONNECT4 = 'CONNECT4',
 }
