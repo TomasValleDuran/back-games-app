@@ -47,16 +47,20 @@ export const GAME_LOBBY_CONFIGS: Record<GameType, GameLobbyConfig> = {
       return nonOwnerPlayers.every((p) => p.isReady);
     },
   },
-  // Add more game types here as they're implemented
-  // Example for a 4-player game:
-  // [GameType.CHESS]: {
-  //   minPlayers: 2,
-  //   maxPlayers: 2,
-  //   ownerMustBeReady: true,
-  //   ownerCanToggleReady: true,
-  //   usesReadySystem: true,
-  //   canStart: (lobby) => lobby.players.length === 2 && lobby.players.every(p => p.isReady),
-  // },
+  [GameType.CONNECT4]: {
+    minPlayers: 2,
+    maxPlayers: 2,
+    ownerMustBeReady: false,
+    ownerCanToggleReady: false,
+    usesReadySystem: true,
+    canStart: (lobby) => {
+      if (lobby.players.length < 2) return false;
+      const nonOwnerPlayers = lobby.players.filter(
+        (p) => p.userId !== lobby.ownerId,
+      );
+      return nonOwnerPlayers.every((p) => p.isReady);
+    },
+  },
 };
 
 /**

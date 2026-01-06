@@ -18,7 +18,7 @@ export class GameLogicService {
     private readonly ticTacToeLogic: TicTacToeLogic,
     private readonly connect4Logic: Connect4Logic,
   ) {
-    this.gameLogics = new Map([
+    this.gameLogics = new Map<GameType, IGameLogic>([
       [GameType.TIC_TAC_TOE, this.ticTacToeLogic],
       [GameType.CONNECT4, this.connect4Logic],
     ]);
