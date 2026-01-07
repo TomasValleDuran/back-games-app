@@ -10,7 +10,10 @@ export class UserRepository {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     return this.prisma.user.create({
-      data: createUserDto,
+      data: {
+        ...createUserDto,
+        displayName: createUserDto.displayName ?? createUserDto.username,
+      },
     });
   }
 

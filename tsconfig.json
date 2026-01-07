@@ -23,7 +23,8 @@
       "@firebase/*": ["src/firebase/*"],
       "@prisma/*": ["src/prisma/*"],
       "@lobby/*": ["src/lobby/*"],
-      "@game/*": ["src/game/*"]
+      "@game/*": ["src/game/*"],
+      "@stats/*": ["src/stats/*"],
     }
   }
 }

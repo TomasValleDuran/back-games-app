@@ -28,7 +28,7 @@ export class CreateUserDto {
   @MaxLength(100)
   displayName?: string;
 
-  @IsUrl()
+  @IsString()
   @IsOptional()
   photoURL?: string;
 }

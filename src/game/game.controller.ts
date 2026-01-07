@@ -11,6 +11,7 @@ import {
 import { GameFirestoreService } from './game-firestore.service';
 import { GameLogicService } from './game-logic.service';
 import { LobbyFirestoreService } from '@lobby/lobby-firestore.service';
+import { StatsService } from '@stats/stats.service';
 import { MakeMoveDto } from './dto/make-move.dto';
 import { FirebaseAuthGuard } from '@firebase/firebase-auth.guard';
 import {
@@ -28,6 +29,7 @@ export class GameController {
     private gameFirestoreService: GameFirestoreService,
     private gameLogicService: GameLogicService,
     private lobbyFirestoreService: LobbyFirestoreService,
+    private statsService: StatsService,
   ) {}
 
   @Post('start/:lobbyId')
@@ -196,6 +198,13 @@ export class GameController {
     if (result.gameOver) {
       await this.gameFirestoreService.endGame(gameId, result.winnerId);
 
+      // Update stats for all players
+      await this.statsService.updateStatsForGameCompletion(
+        game.players.map((p) => ({ userId: p.userId })),
+        result.winnerId,
+        game.gameType,
+      );
+
       // Reset lobby back to WAITING so players can play again
       await this.lobbyFirestoreService.resetLobbyAfterGame(game.lobbyId);
     }
@@ -234,6 +243,12 @@ export class GameController {
     }
 
     await this.gameFirestoreService.abandonGame(gameId);
+
+    // Update stats for all players (abandoned game)
+    await this.statsService.updateStatsForGameAbandonment(
+      game.players.map((p) => ({ userId: p.userId })),
+      game.gameType,
+    );
 
     // Reset lobby back to WAITING so players can play again
     await this.lobbyFirestoreService.resetLobbyAfterGame(game.lobbyId);

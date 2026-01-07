@@ -5,6 +5,7 @@ import { FirebaseModule } from '@firebase/firebase.module';
 import { UserModule } from '@user/user.module';
 import { LobbyModule } from '@lobby/lobby.module';
 import { GameModule } from '@game/game.module';
+import { StatsModule } from '@stats/stats.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GameModule } from '@game/game.module';
     UserModule,
     LobbyModule,
     GameModule,
+    StatsModule,
   ],
   controllers: [],
   providers: [],
