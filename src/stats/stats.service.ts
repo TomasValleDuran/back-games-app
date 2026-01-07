@@ -28,7 +28,7 @@ export class StatsService {
 
   async getUserStats(userId: string): Promise<PlayerStats[]> {
     const stats = await this.statsRepository.getStatsByUserId(userId);
-    
+
     return stats.map((stat) => this.calculateStats(stat));
   }
 
@@ -50,7 +50,7 @@ export class StatsService {
 
   async getAggregateStats(userId: string): Promise<AggregateStats> {
     const stats = await this.statsRepository.getStatsByUserId(userId);
-    
+
     const aggregate = stats.reduce(
       (acc, stat) => {
         acc.totalWins += stat.wins;
@@ -98,10 +98,7 @@ export class StatsService {
     players: Array<{ userId: string }>,
     gameType: GameType,
   ): Promise<void> {
-    await this.statsRepository.updateStatsForGameAbandonment(
-      players,
-      gameType,
-    );
+    await this.statsRepository.updateStatsForGameAbandonment(players, gameType);
   }
 
   private calculateStats(stat: {
@@ -114,8 +111,7 @@ export class StatsService {
   }): PlayerStats {
     // totalGames should match played (since played counts all completed/abandoned games)
     const totalGames = stat.played;
-    const winRate =
-      totalGames > 0 ? (stat.wins / totalGames) * 100 : 0;
+    const winRate = totalGames > 0 ? (stat.wins / totalGames) * 100 : 0;
 
     return {
       userId: stat.userId,
@@ -129,4 +125,3 @@ export class StatsService {
     };
   }
 }
-

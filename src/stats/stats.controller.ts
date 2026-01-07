@@ -1,4 +1,10 @@
-import { Controller, Get, Param, UseGuards, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  UseGuards,
+  BadRequestException,
+} from '@nestjs/common';
 import { StatsService } from './stats.service';
 import { FirebaseAuthGuard } from '@firebase/firebase-auth.guard';
 import {
@@ -124,4 +130,3 @@ export class StatsController {
     return gameType;
   }
 }
-
