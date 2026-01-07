@@ -21,6 +21,24 @@ export class StatsController {
     };
   }
 
+  @Get('summary')
+  async getMyAggregateStats(@CurrentUser() user: AuthenticatedUser) {
+    const aggregateStats = await this.statsService.getAggregateStats(user.id);
+    return {
+      success: true,
+      stats: aggregateStats,
+    };
+  }
+
+  @Get('user/:userId/summary')
+  async getUserAggregateStats(@Param('userId') userId: string) {
+    const aggregateStats = await this.statsService.getAggregateStats(userId);
+    return {
+      success: true,
+      stats: aggregateStats,
+    };
+  }
+
   @Get('user/:userId')
   async getUserStats(@Param('userId') userId: string) {
     const stats = await this.statsService.getUserStats(userId);

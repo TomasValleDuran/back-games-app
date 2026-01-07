@@ -13,6 +13,15 @@ export interface PlayerStats {
   winRate: number;
 }
 
+export interface AggregateStats {
+  userId: string;
+  totalWins: number;
+  totalLosses: number;
+  totalDraws: number;
+  totalPlayed: number;
+  overallWinRate: number;
+}
+
 @Injectable()
 export class StatsService {
   constructor(private readonly statsRepository: StatsRepository) {}
@@ -37,6 +46,40 @@ export class StatsService {
     }
 
     return this.calculateStats(stat);
+  }
+
+  async getAggregateStats(userId: string): Promise<AggregateStats> {
+    const stats = await this.statsRepository.getStatsByUserId(userId);
+    
+    const aggregate = stats.reduce(
+      (acc, stat) => {
+        acc.totalWins += stat.wins;
+        acc.totalLosses += stat.losses;
+        acc.totalDraws += stat.draws;
+        acc.totalPlayed += stat.played;
+        return acc;
+      },
+      {
+        totalWins: 0,
+        totalLosses: 0,
+        totalDraws: 0,
+        totalPlayed: 0,
+      },
+    );
+
+    const overallWinRate =
+      aggregate.totalPlayed > 0
+        ? (aggregate.totalWins / aggregate.totalPlayed) * 100
+        : 0;
+
+    return {
+      userId,
+      totalWins: aggregate.totalWins,
+      totalLosses: aggregate.totalLosses,
+      totalDraws: aggregate.totalDraws,
+      totalPlayed: aggregate.totalPlayed,
+      overallWinRate: Math.round(overallWinRate * 100) / 100, // Round to 2 decimal places
+    };
   }
 
   async updateStatsForGameCompletion(
