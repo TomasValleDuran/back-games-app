@@ -284,6 +284,52 @@ export class LobbyFirestoreService {
     await this.lobbiesCollection.doc(lobbyId).update(updateData);
   }
 
+  async updateLobbyGameType(lobbyId: string, gameType: GameType): Promise<Lobby> {
+    const lobbyRef = this.lobbiesCollection.doc(lobbyId);
+
+    return await this.firestore.runTransaction(async (transaction) => {
+      const lobbyDoc = await transaction.get(lobbyRef);
+
+      if (!lobbyDoc.exists) {
+        throw new NotFoundException('Lobby not found');
+      }
+
+      const lobby = { id: lobbyDoc.id, ...lobbyDoc.data() } as Lobby;
+
+      // Check if lobby is in WAITING status
+      if (lobby.status !== LobbyStatus.WAITING) {
+        throw new BadRequestException(
+          'Cannot change game type. Lobby is not in waiting status.',
+        );
+      }
+
+      // Get new game-specific configuration
+      const newGameConfig = getGameLobbyConfig(gameType);
+
+      // Reset all players' ready status based on new game config
+      const updatedPlayers = lobby.players.map((player) => ({
+        ...player,
+        // Owner ready status depends on new game configuration
+        isReady:
+          player.userId === lobby.ownerId
+            ? !newGameConfig.ownerMustBeReady
+            : false,
+      }));
+
+      transaction.update(lobbyRef, {
+        gameType,
+        players: updatedPlayers,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+
+      return {
+        ...lobby,
+        gameType,
+        players: updatedPlayers,
+      } as Lobby;
+    });
+  }
+
   async resetLobbyAfterGame(lobbyId: string): Promise<void> {
     const lobbyRef = this.lobbiesCollection.doc(lobbyId);
 
@@ -312,6 +358,7 @@ export class LobbyFirestoreService {
       transaction.update(lobbyRef, {
         status: LobbyStatus.WAITING,
         players: resetPlayers,
+        gameId: FieldValue.delete(), // Clear gameId when resetting lobby
         updatedAt: FieldValue.serverTimestamp(),
       });
     });

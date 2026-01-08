@@ -96,9 +96,14 @@ export class StatsService {
 
   async updateStatsForGameAbandonment(
     players: Array<{ userId: string }>,
+    abandoningUserId: string,
     gameType: GameType,
   ): Promise<void> {
-    await this.statsRepository.updateStatsForGameAbandonment(players, gameType);
+    await this.statsRepository.updateStatsForGameAbandonment(
+      players,
+      abandoningUserId,
+      gameType,
+    );
   }
 
   private calculateStats(stat: {

@@ -156,11 +156,17 @@ export class StatsRepository {
 
   async updateStatsForGameAbandonment(
     players: Array<{ userId: string }>,
+    abandoningUserId: string,
     gameType: GameType,
   ) {
-    // All players get "played" incremented (they did play the game)
+    // Abandoning player gets a loss (which also increments played)
+    await this.incrementLoss(abandoningUserId, gameType);
+    
+    // Other players get a win (which also increments played)
     for (const player of players) {
-      await this.incrementPlayed(player.userId, gameType);
+      if (player.userId !== abandoningUserId) {
+        await this.incrementWin(player.userId, gameType);
+      }
     }
   }
 }

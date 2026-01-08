@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Param,
   Body,
   UseGuards,
@@ -10,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { LobbyFirestoreService } from './lobby-firestore.service';
 import { CreateLobbyDto } from './dto/create-lobby.dto';
+import { UpdateGameTypeDto } from './dto/update-game-type.dto';
 import { FirebaseAuthGuard } from '@firebase/firebase-auth.guard';
 import {
   CurrentUser,
@@ -156,6 +158,35 @@ export class LobbyController {
     return {
       success: true,
       lobby,
+    };
+  }
+
+  @Patch(':id/game-type')
+  async updateGameType(
+    @Param('id') lobbyId: string,
+    @Body() updateGameTypeDto: UpdateGameTypeDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    const lobby = await this.lobbyFirestoreService.getLobby(lobbyId);
+
+    if (!lobby) {
+      throw new NotFoundException('Lobby not found');
+    }
+
+    // Check if user is the owner
+    if (lobby.ownerId !== user.id) {
+      throw new BadRequestException('Only the lobby owner can change the game type');
+    }
+
+    const updatedLobby = await this.lobbyFirestoreService.updateLobbyGameType(
+      lobbyId,
+      updateGameTypeDto.gameType,
+    );
+
+    return {
+      success: true,
+      lobby: updatedLobby,
+      message: 'Game type updated successfully. Check Firestore for updated state.',
     };
   }
 }

@@ -245,8 +245,10 @@ export class GameController {
     await this.gameFirestoreService.abandonGame(gameId);
 
     // Update stats for all players (abandoned game)
+    // Abandoning player gets a loss, others just get played incremented
     await this.statsService.updateStatsForGameAbandonment(
       game.players.map((p) => ({ userId: p.userId })),
+      user.id,
       game.gameType,
     );
 
