@@ -1,0 +1,21 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ '*' ]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    with:
+      node-version: '22.x'
+
+  docker-publish:
+    needs: ci
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/docker-publish.yml
+    secrets:
+      PAT: ${{ secrets.PAT }}
