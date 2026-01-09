@@ -24,9 +24,8 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Force CommonJS in the built output too
-RUN mkdir -p /app/dist/generated/prisma && \
-    echo '{"type":"commonjs"}' > /app/dist/generated/prisma/package.json
+# Copy the generated Prisma client into dist where the compiled code expects it
+RUN cp -r /app/generated /app/dist/
 
 # Production stage
 FROM node:22-alpine AS production
@@ -39,10 +38,7 @@ COPY package*.json ./
 # Install only production dependencies
 RUN npm ci --only=production && npm cache clean --force
 
-# Copy generated Prisma client from builder (with CommonJS package.json)
-COPY --from=builder /app/generated ./generated
-
-# Copy built application from builder (with CommonJS package.json in dist/generated)
+# Copy built application from builder (includes dist/generated with Prisma client)
 COPY --from=builder /app/dist ./dist
 
 # Expose port
