@@ -37,8 +37,15 @@ RUN npm ci --only=production && npm cache clean --force
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 RUN npx prisma generate
 
+# Create a package.json in generated folder to force CommonJS module type
+RUN echo '{"type":"commonjs"}' > /app/generated/prisma/package.json
+
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
+
+# Ensure the generated client in dist also has CommonJS package.json
+RUN mkdir -p /app/dist/generated/prisma && \
+    echo '{"type":"commonjs"}' > /app/dist/generated/prisma/package.json
 
 # Expose port
 EXPOSE 3000
