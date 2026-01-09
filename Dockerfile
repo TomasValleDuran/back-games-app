@@ -15,11 +15,18 @@ RUN npm ci
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 RUN npx prisma generate
 
+# Force the generated Prisma client to use CommonJS
+RUN echo '{"type":"commonjs"}' > /app/generated/prisma/package.json
+
 # Copy source code
 COPY . .
 
 # Build the application
 RUN npm run build
+
+# Force CommonJS in the built output too
+RUN mkdir -p /app/dist/generated/prisma && \
+    echo '{"type":"commonjs"}' > /app/dist/generated/prisma/package.json
 
 # Production stage
 FROM node:22-alpine AS production
@@ -28,24 +35,15 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY prisma ./prisma
 
 # Install only production dependencies
 RUN npm ci --only=production && npm cache clean --force
 
-# Generate Prisma Client in production environment (no config file needed, DATABASE_URL is enough)
-ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
-RUN npx prisma generate
+# Copy generated Prisma client from builder (with CommonJS package.json)
+COPY --from=builder /app/generated ./generated
 
-# Create a package.json in generated folder to force CommonJS module type
-RUN echo '{"type":"commonjs"}' > /app/generated/prisma/package.json
-
-# Copy built application from builder
+# Copy built application from builder (with CommonJS package.json in dist/generated)
 COPY --from=builder /app/dist ./dist
-
-# Ensure the generated client in dist also has CommonJS package.json
-RUN mkdir -p /app/dist/generated/prisma && \
-    echo '{"type":"commonjs"}' > /app/dist/generated/prisma/package.json
 
 # Expose port
 EXPOSE 3000
