@@ -78,6 +78,7 @@ export class TicTacToeLogic implements IGameLogic {
       userId: p.userId,
       username: p.username,
       displayName: p.displayName,
+      photoURL: p.photoURL,
       symbol: index === 0 ? 'X' : 'O',
     }));
   }

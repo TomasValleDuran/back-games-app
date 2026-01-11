@@ -9,6 +9,7 @@ export interface GamePlayer {
   userId: string;
   username: string;
   displayName: string;
+  photoURL?: string | null; // Player's avatar/photo URL
   symbol?: string; // Game-specific symbol (e.g., 'X'/'O' for Tic Tac Toe)
 }
 
